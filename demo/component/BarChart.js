@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import {
   BarChart, Bar, Brush, Cell, CartesianGrid, ReferenceLine, ReferenceArea,
-  XAxis, YAxis, Tooltip, Legend, ErrorBar, LabelList, Rectangle
+  XAxis, YAxis, Tooltip, Legend, ErrorBar, LabelList, Rectangle, ResponsiveContainer
 } from 'recharts';
 import { scaleOrdinal } from 'd3-scale';
 import { schemeCategory10 } from 'd3-scale-chromatic';
@@ -111,6 +111,17 @@ const pageData = [
   { name: 'Page E', uv: 278, pv: 3908, amt: 2400 },
   { name: 'Page F', uv: 189, pv: 4800, amt: 2400 },
   { name: 'Page G', uv: 189, pv: 4800, amt: 2400 },
+];
+
+const dudeData = [
+  { name: "Cisgender men", value: 400 },
+  { name: "Cisgender women", value: 300 },
+  { name: "Nonbinary", value: 120 },
+  { name: "Intersexual", value: 80 },
+  { name: "Transgender men", value: 80 },
+  { name: "Transgender women", value: 80 },
+  { name: "Other", value: 80 },
+  { name: "Not informed", value: 80 }
 ];
 
 const RenderLabel = (props) => {
@@ -294,7 +305,7 @@ export default class Demo extends Component {
   };
 
   render() {
-    const { data, data01, data02 } = this.state;
+    const { data, data01, data02, dudeData } = this.state;
 
     return (
       <div className="bar-charts">
@@ -307,260 +318,28 @@ export default class Demo extends Component {
         </a>
         <br />
 
-        <p>BarChart of layout vertical</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={400} height={400} data={data.slice(0, 1)} maxBarSize={10} barSize={10}>
-            <XAxis padding={{ left: 20, right: 100 }} type="number" dataKey="time" />
-            <YAxis type="number" />
-            <CartesianGrid horizontal={false} />
-            <Tooltip />
-            <Bar dataKey="uv" fill="#ff7300" maxBarSize={15} isAnimationActive={false} />
-            <Bar dataKey="pv" fill="#387908" />
-          </BarChart>
+        <div>
+          <p>Error recreation</p>
+          <div className="bar-chart-wrapper">
+          <ResponsiveContainer width="99%" height="99%">
+            <BarChart data={data} layout="vertical" barCategoryGap={5}>
+              <Bar dataKey="uv" fill="#8884d8" radius={[0, 10, 10, 0]}>
+                {data.map((entry, index) => (
+                  <Cell key={entry.name} />
+                ))}
+              </Bar>
+              <XAxis type="number" />
+              <YAxis
+                type="category"
+                dataKey="name"
+                axisLine={false}
+                width={100}
+                tick={{ fontSize: 12 }}
+              />
+            </BarChart>
+          </ResponsiveContainer>  
+          </div>
         </div>
-
-        <p>Simple BarChart (Click on rectangles and open console )</p>
-        <p>
-          <a onClick={this.handleMoreData}>more data</a>
-          <span style={{ margin: '0 20px' }}>|</span>
-          <a onClick={this.handleLessData}>less data</a>
-        </p>
-        <div className="bar-chart-wrapper" style={{ textAlign: 'right' }}>
-          <BarChart width={400} height={400} data={data} onClick={this.handlePvBarClick}>
-            <XAxis dataKey="name" />
-            <YAxis yAxisId="a" />
-            <YAxis yAxisId="b" orientation="right" />
-            <Legend />
-            <Tooltip />
-            <CartesianGrid vertical={false} />
-            <Bar yAxisId="a" dataKey="uv" onAnimationStart={this.handleBarAnimationStart} onAnimationEnd={this.handleBarAnimationEnd}>
-              <LabelList fill="#000" angle={-45} />
-              {
-                data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-                ))
-              }
-            </Bar>
-            <Bar yAxisId="b" dataKey="pv" label>
-              {
-                data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-                ))
-              }
-            </Bar>
-          </BarChart>
-        </div>
-
-        <p>BarChart with error bars</p>
-        <div className="bar-chart-wrapper" style={{ textAlign: 'right' }}>
-          <BarChart width={400} height={400} data={data} onClick={this.handlePvBarClick}>
-            <XAxis dataKey="name" />
-            <YAxis yAxisId="a" />
-            <YAxis yAxisId="b" orientation="right" />
-            <Legend />
-            <Tooltip />
-            <CartesianGrid vertical={false} />
-            <Bar yAxisId="a" dataKey="uv" onAnimationStart={this.handleBarAnimationStart} onAnimationEnd={this.handleBarAnimationEnd}>
-              {
-                data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-                ))
-              }
-              <ErrorBar dataKey="uvError" />
-            </Bar>
-            <Bar yAxisId="b" dataKey="pv" errorBar={{ errorKey: 'pvError', width: 10, strokeWidth: 1, fill: 'black' }}>
-              {
-                data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[index % 20]} />
-                ))
-              }
-              <ErrorBar dataKey="pvError" />
-            </Bar>
-          </BarChart>
-        </div>
-
-
-        <p>Tiny BarChart</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={150} height={40} data={data}>
-            <Bar dataKey="uv" fill="#ff7300" onClick={this.handlePvBarClick} background />
-          </BarChart>
-        </div>
-
-        <p>BarChart with tickFormatter</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={500} height={300} data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tickFormatter={(value, i) => `${value}.${i}`} />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="pv" fill="#8884d8" />
-            <Bar dataKey="uv" fill="#82ca9d" />
-          </BarChart>
-        </div>
-
-        <p>BarChart of positive and negative values</p>
-        <div className="bar-chart-wrapper" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
-          <BarChart width={1100} height={250} barGap={2} barSize={6} data={data02} margin={{ top: 20, right: 60, bottom: 0, left: 20 }}>
-            <XAxis dataKey="name" />
-            <YAxis tickCount={7} />
-            <Tooltip />
-            <CartesianGrid />
-            <Bar dataKey="uv" fill="#ff7300" radius={[5, 5, 5, 5]} />
-            <Bar dataKey="pv" fill="#387908" radius={[5, 5, 5, 5]} />
-            <Brush dataKey="name" height={30} />
-            <ReferenceLine type="horizontal" value={0} stroke="#666" />
-          </BarChart>
-        </div>
-
-        <p>BarChart of custom bar (1)</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={500} height={250} barCategoryGap={0} data={data} margin={{ top: 20, right: 20, bottom: 0, left: 20 }}>
-            <XAxis dataKey="name" />
-            <Bar dataKey="uv" barGap={0} fill="#ff7300" shape={CustomBar} />
-          </BarChart>
-        </div>
-
-        <p>BarChart of custom bar (2)</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={500} height={250} barCategoryGap={0} data={data} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-            <XAxis axisLine={false} tickLine={false} dataKey="name" tick={<CustomAxis />} />
-            <Bar dataKey="uv" barGap={0} fill="#387908" shape={<BarTwo />} label />
-          </BarChart>
-        </div>
-
-        <p>Stack BarChart</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={400} height={400} data={data}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <CartesianGrid vertical={false} />
-            <Bar stackId="0" dataKey="uv" fill="#ff7300">
-              <LabelList />
-            </Bar>
-            <Bar stackId="0" dataKey="pv" fill="#387908" />
-            <Bar dataKey="amt" fill="#387908">
-              <LabelList />
-            </Bar>
-            <Legend layout="vertical" />
-          </BarChart>
-        </div>
-
-        <p>BarChart of range values</p>
-        <div className="area-chart-wrapper">
-          <BarChart
-            width={400}
-            height={400}
-            data={rangeData}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-          >
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="temperature" fill="#ff7300" />
-          </BarChart>
-        </div>
-
-        <p>Vertical BarChart</p>
-        <div className="area-chart-wrapper">
-          <BarChart
-            width={1400}
-            height={400}
-            data={data}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            layout="vertical"
-          >
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" />
-            <Tooltip />
-            <Bar dataKey="uv" fill="#ff7300" maxBarSize={20} label radius={[10, 10, 10, 10]} />
-            <Bar dataKey="pv" fill="#387908" />
-          </BarChart>
-        </div>
-
-        <p>Label alignment on Vertical BarChart when all data are positive</p>
-        <div className="area-chart-wrapper">
-          <BarChart
-            width={800}
-            height={800}
-            data={pageData}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            layout="vertical"
-          >
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" />
-            <Tooltip />
-            <Bar dataKey="pv" fill="#387908">
-              <LabelList position="right" />
-            </Bar>
-          </BarChart>
-        </div>
-
-        <p>Label alignment on Vertical BarChart</p>
-        <div className="area-chart-wrapper">
-          <BarChart
-            width={800}
-            height={800}
-            data={data}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            layout="vertical"
-          >
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" />
-            <Tooltip />
-            <Bar dataKey="uv" fill="#ff7300" label />
-            <Bar dataKey="pv" fill="#387908">
-              <LabelList position="right" invertNegativesOn="horizontal" />
-            </Bar>
-            <Bar dataKey="amt" fill="#683a98">
-              <LabelList position="left" />
-            </Bar>
-            <Bar dataKey="bmk" fill="#183a91">
-              <LabelList position="insideRight" fill="#ffffff" invertNegativesOn="horizontal" />
-            </Bar>
-          </BarChart>
-        </div>
-
-        <p>Label alignment on Horizontal BarChart</p>
-        <div className="area-chart-wrapper">
-          <BarChart
-            width={1000}
-            height={400}
-            data={data}
-            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            layout="horizontal"
-          >
-            <YAxis type="number" />
-            <XAxis dataKey="name" type="category" />
-            <Tooltip />
-            <ReferenceArea x1="food" x2="cosmetic"/>
-            <Bar dataKey="uv" fill="#ff7300" label />
-            <Bar dataKey="pv" fill="#387908">
-              <LabelList position="top" invertNegativesOn="vertical" />
-            </Bar>
-            <Bar dataKey="amt" fill="#683a98">
-              <LabelList position="bottom" />
-            </Bar>
-            <Bar dataKey="bmk" fill="#183a91">
-              <LabelList position="insideTop" fill="#ffffff" invertNegativesOn="vertical" />
-            </Bar>
-          </BarChart>
-        </div>
-
-        <p>Custom cursor with hover action</p>
-        <div className="bar-chart-wrapper">
-          <BarChart width={500} height={300} data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip cursor={<CustomCursor />} />
-            <Legend />
-            <Bar dataKey="pv" fill="#8884d8" />
-          </BarChart>
-        </div>
-
       </div>
     );
   }
